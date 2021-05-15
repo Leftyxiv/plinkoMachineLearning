@@ -1,5 +1,4 @@
 const outputs = [];
-const predictionPoint = 300;
 const k = 3;
 
 function onScoreUpdate(dropPosition, bounciness, size, bucketLabel) {
@@ -9,22 +8,11 @@ function onScoreUpdate(dropPosition, bounciness, size, bucketLabel) {
 
 
 function runAnalysis() {
-  const bucket = _.chain(outputs)
-    .map(row => [distance(row[0]), row[3]])
-    .sortBy(row => row[1])
-    .slice(0, k)
-    .countBy(row => row[1])
-    .toPairs()
-    .sortBy(row => row[1])
-    .last()
-    .first()
-    .parseInt()
-    .value()
-  console.log(bucket)
+  const bucket =
 }
 
-function distance(point) {
-  return Math.abs(point - predictionPoint)
+function distance(pointA, pointB) {
+  return Math.abs(pointA - pointB)
 }
 
 function slpitDataSet(data, testCount) {
@@ -33,4 +21,18 @@ function slpitDataSet(data, testCount) {
   const testSet = _.slice(shuffled, 0, testCount)
   const trainingSet = _.slice(shuffled, testCount)
   return [testSet, trainingSet]
+}
+
+function knn(data, point){
+  return _.chain(data)
+  .map(row => [distance(row[0], point), row[3]])
+  .sortBy(row => row[1])
+  .slice(0, k)
+  .countBy(row => row[1])
+  .toPairs()
+  .sortBy(row => row[1])
+  .last()
+  .first()
+  .parseInt()
+  .value()
 }

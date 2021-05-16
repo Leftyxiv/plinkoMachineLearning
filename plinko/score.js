@@ -31,7 +31,7 @@ function slpitDataSet(data, testCount) {
   const trainingSet = _.slice(shuffled, testCount)
   return [testSet, trainingSet]
 }
-
+// comment
 function knn(data, point, k){
   return _.chain(data)
   .map(row => [distance(row[0], point), row[3]])

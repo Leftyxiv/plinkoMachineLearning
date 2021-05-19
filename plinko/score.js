@@ -6,7 +6,7 @@ function onScoreUpdate(dropPosition, bounciness, size, bucketLabel) {
 
 function runAnalysis() {
   const testSetSize = 10;
-  const [testSet, trainingSet] = slpitDataSet(outputs, testSetSize);
+  const [testSet, trainingSet] = slpitDataSet(minMax(outputs, 3), testSetSize);
 
   _.range(1, 15).forEach((k) => {
     const accuracy = _.chain(testSet)

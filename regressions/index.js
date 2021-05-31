@@ -17,5 +17,5 @@ const regression = new LinerRegression(features, labels, {
 });
 
 regression.train();
-
-console.log(regression.weights.get(1, 0), "-----m-----", regression.weights.get(0, 0), "-----b-------");
+const r2 = regression.test(testFeatures, testLabels);
+console.log('r2', r2)

@@ -7,12 +7,12 @@ const LinerRegression = require("./linearRegression");
 let { features, labels, testFeatures, testLabels } = loadCSV("./cars.csv", {
   shuffleL: true,
   splitTest: 50,
-  dataColumns: ["horsepower"],
+  dataColumns: ["horsepower", "displacement", "weight"],
   labelColumns: ["mpg"],
 });
 
 const regression = new LinerRegression(features, labels, {
-  learningRate: 0.0001,
+  learningRate: 0.1,
   iterations: 100,
 });
 

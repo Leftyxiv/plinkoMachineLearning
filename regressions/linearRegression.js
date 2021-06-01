@@ -22,6 +22,9 @@ class LinerRegression {
   }
 
   train() {
+    const batchQuantity = Math.floor(this.features.shape[0] / this.options.batchSize);
+
+    
     for (let i = 0; i < this.options.iterations; ++i) {
       this.gradientDescent(this.features, this.labels);
       this.recordMSE();

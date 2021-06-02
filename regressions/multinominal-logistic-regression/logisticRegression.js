@@ -13,7 +13,7 @@ class LogisticRegression {
   }
 
   gradientDescent(features, labels) {
-    const currentGuesses = features.matMul(this.weights).sigmoid();
+    const currentGuesses = features.matMul(this.weights).softmax();
     const differences = currentGuesses.sub(labels);
 
     const slopes = features.transpose().matMul(differences).div(features.shape[0]);
@@ -37,14 +37,14 @@ class LogisticRegression {
   }
 
   predict(observations) {
-   return this.processFeatures(observations).matMul(this.weights).sigmoid().greater(this.options.decisionBoundary).cast('float32');
+   return this.processFeatures(observations).matMul(this.weights).softmax().argMax(1);
   }
 
   test(testFeatures, testLabels) {
     const predictions = this.predict(testFeatures);
-    testLabels = tf.tensor(testLabels);
+    testLabels = tf.tensor(testLabels).argMax(1);
 
-    const incorrect = predictions.sub(testLabels).abs().sum().get();
+    const incorrect = predictions.notEqual(testLabels).sum().get();
 
     return (predictions.shape[0] - incorrect) / predictions.shape[0]
   }
@@ -72,7 +72,7 @@ class LogisticRegression {
   }
 
   recordCost() {
-    const guesses = this.features.matMul(this.weights).sigmoid();
+    const guesses = this.features.matMul(this.weights).softmax();
 
     const termOne = this.labels.transpose().matMul(guesses.log());
 

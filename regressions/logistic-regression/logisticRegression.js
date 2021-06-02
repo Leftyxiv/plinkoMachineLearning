@@ -1,19 +1,19 @@
 const tf = require("@tensorflow/tfjs");
 const _ = require("lodash");
 
-class LinerRegression {
+class LogisticRegression {
   constructor(features, labels, options) {
     this.features = this.processFeatures(features);
     this.labels = tf.tensor(labels);
     this.mseHistory = [];
 
-    this.options = Object.assign({ learningRate: 0.1, iterations: 1000 }, options);
+    this.options = Object.assign({ learningRate: 0.1, iterations: 1000, decisionBoundary: 0.5 }, options);
 
     this.weights = tf.zeros([this.features.shape[1], 1]);
   }
 
   gradientDescent(features, labels) {
-    const currentGuesses = features.matMul(this.weights);
+    const currentGuesses = features.matMul(this.weights).sigmoid();
     const differences = currentGuesses.sub(labels);
 
     const slopes = features.transpose().matMul(differences).div(features.shape[0]);
@@ -24,24 +24,29 @@ class LinerRegression {
   train() {
     const batchQuantity = Math.floor(this.features.shape[0] / this.options.batchSize);
 
-    
+
     for (let i = 0; i < this.options.iterations; ++i) {
-      this.gradientDescent(this.features, this.labels);
+      for (let j = 0; j < batchQuantity; ++j){
+        const featureSlice = this.features.slice([j * this.options.batchSize, 0], [this.options.batchSize, -1])
+        const labelSlice = this.labels.slice([j * this.options.batchSize, 0], [this.options.batchSize, -1])
+        this.gradientDescent(featureSlice, labelSlice);
+      }
       this.recordMSE();
       this.updateLearningRate();
     }
   }
 
+  predict(observations) {
+   return this.processFeatures(observations).matMul(this.weights).sigmoid().greater(this.options.decisionBoundary).cast('float32');
+  }
+
   test(testFeatures, testLabels) {
-    testFeatures = this.processFeatures(testFeatures);
+    const predictions = this.predict(testFeatures);
     testLabels = tf.tensor(testLabels);
 
-    const predictions = testFeatures.matMul(this.weights);
+    const incorrect = predictions.sub(testLabels).abs().sum().get();
 
-    const residuals = testLabels.sub(predictions).pow(2).sum().get();
-    const tot = testLabels.sub(testLabels.mean()).pow(2).sum().get();
-
-    return 1 - residuals / tot;
+    return (predictions.shape[0] - incorrect) / predictions.shape[0]
   }
 
   processFeatures(features) {
@@ -83,29 +88,4 @@ class LinerRegression {
   }
 }
 
-module.exports = LinerRegression;
-
-// const currentGuessesForMpg = this.features.map((row) => {
-//   return this.m * row[0] + this.b;
-// });
-
-// const bSlope =
-//   (_.sum(
-//     currentGuessesForMpg.map((guess, i) => {
-//       return guess - this.labels[i][0];
-//     }),
-//   ) *
-//     2) /
-//   this.features.length;
-
-// const mSlope =
-//   (_.sum(
-//     currentGuessesForMpg.map((guess, i) => {
-//       return -1 * this.features[i][0] * (this.labels[i][0] - guess);
-//     }),
-//   ) *
-//     2) /
-//   this.features.length;
-
-// this.m = this.m - mSlope * this.options.learningRate;
-// this.b = this.b - bSlope * this.options.learningRate;
+module.exports = LogisticRegression;

@@ -7,7 +7,7 @@ const plot = require('node-remote-plot');
 
 function loadData(){
 
-  const mnistData = mnist.training(0, 5000)
+  const mnistData = mnist.training(0, 10000)
   
   const features = mnistData.images.values.map(image => _.flatMap(image))
   const encodedLabels = mnistData.labels.values.map(label => {
@@ -38,3 +38,7 @@ const testEncodedLabels = testMnistData.labels.values.map(label => {
 
 const accuracy = regression.test(testFeatures, testEncodedLabels)
 console.log(`The accuracy is ${accuracy}`)
+
+plot({
+  x: regression.costHistory.reverse()
+})
